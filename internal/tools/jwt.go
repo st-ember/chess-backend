@@ -18,12 +18,12 @@ func init() {
 }
 
 // generate access and refresh tokens with user claims
-func GenerateTokens(username string) (accessToken, refreshToken string, refreshClaims jwt.RegisteredClaims, err error) {
+func GenerateTokens(username string) (accessToken, refreshToken string, refreshExpiresAt *jwt.NumericDate, err error) {
 	key := []byte(os.Getenv("JWT_SECRET"))
 
 	if len(key) == 0 {
 		err = errors.New("jwt secret not set")
-		return "", "", jwt.RegisteredClaims{}, err
+		return "", "", refreshExpiresAt, err
 	}
 
 	accessClaims := UserAuthClaims{
@@ -37,12 +37,14 @@ func GenerateTokens(username string) (accessToken, refreshToken string, refreshC
 	accessToken, err = jwt.NewWithClaims(jwt.SigningMethodHS256, accessClaims).SignedString(key)
 
 	if err != nil {
-		return "", "", jwt.RegisteredClaims{}, err
+		return "", "", refreshExpiresAt, err
 	}
 
-	refreshClaims = jwt.RegisteredClaims{
+	refreshExpiresAt = jwt.NewNumericDate(time.Now().Add(time.Hour * 24 * 7))
+
+	refreshClaims := jwt.RegisteredClaims{
 		Subject:   username,
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24 * 7)),
+		ExpiresAt: refreshExpiresAt,
 		Issuer:    os.Getenv("JWT_ISSUER"),
 		ID:        fmt.Sprintf("%d", time.Now().Unix()),
 	}
@@ -50,10 +52,10 @@ func GenerateTokens(username string) (accessToken, refreshToken string, refreshC
 	refreshToken, err = jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims).SignedString(key)
 
 	if err != nil {
-		return "", "", jwt.RegisteredClaims{}, err
+		return "", "", refreshExpiresAt, err
 	}
 
-	return accessToken, refreshToken, refreshClaims, nil
+	return accessToken, refreshToken, refreshExpiresAt, nil
 }
 
 type UserAuthClaims struct {

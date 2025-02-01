@@ -38,7 +38,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken, refreshToken, refreshClaims, err := tools.GenerateTokens(username)
+	accessToken, refreshToken, refreshExpiresAt, err := tools.GenerateTokens(username)
 	if err != nil {
 		log.Error("cannot generate tokens", err)
 		api.InternalErrorHandler(w)
@@ -58,7 +58,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	cookie := &http.Cookie{
 		Name:     "refresh_token",
 		Value:    refreshToken,
-		Expires:  refreshClaims.ExpiresAt.Time,
+		Expires:  refreshExpiresAt.Time,
 		HttpOnly: true,
 		Secure:   false,
 		SameSite: http.SameSiteLaxMode,
