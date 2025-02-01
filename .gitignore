@@ -1,0 +1,35 @@
+# Build artifacts
+/bin/
+/obj/
+
+# Go binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Dependency directories
+/vendor/
+
+# Go workspace file
+go.work
+go.work.sum
+
+# IDE or editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# MacOS specific files
+.DS_Store
+
+# Log files
+*.log
+
+# Test coverage directory
+coverage/
+
+# .env files (optional, but often ignored)
+.env
